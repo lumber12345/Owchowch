@@ -1,6 +1,6 @@
 # Owchowch personal war room
 
-Owchowch personal war room is a Torn rank-war dashboard for faction roster status, hospital-release countdowns, chain timing, and manually grouped targets. The web app can also be installed as a standalone PWA on Android and iOS.
+Owchowch personal war room is a Torn rank-war dashboard for faction roster status, hospital-release countdowns, chain timing, and manually grouped targets. It is available as a web app, installable PWA, and Windows desktop app.
 
 ## Deploy to Render
 
@@ -11,6 +11,19 @@ This project includes a Render Blueprint at `render.yaml`. To deploy:
 3. When the service is live, open its HTTPS URL and choose **API settings** to connect your Torn API key.
 
 The service binds to Render's `PORT`, uses `/api/health` for its health check, and needs no third-party Python packages. The API key is entered in the browser and forwarded to this service in a POST body; the app does not write it to disk or include it in request logs. A Render deployment still processes that traffic, so deploy only to an account/server you trust. The service URL is public unless you add access controls; do not commit API keys or share the key with anyone.
+
+## Install the Windows desktop app
+
+The Windows desktop installer is built for Windows 10/11, 64-bit. It includes the app and a private Python runtime, so Python does not need to be installed separately. The installer creates Start Menu and desktop shortcuts. When built from this project, the installer is written to `downloads/windows-installer/Owchowch-Personal-War-Room-Setup-1.0.0.exe`.
+
+To build it on Windows:
+
+1. Install Node.js 22.12 or newer.
+2. Open a terminal in the project folder and run `npm ci`.
+3. Run `npm run package:win`. The build downloads the official Python 3.13.16 embeddable runtime and verifies its SHA-256 before packaging.
+4. Run the generated setup `.exe` and follow the installer prompts.
+
+The desktop app opens in its own window and runs the API bridge on `127.0.0.1` only. Your board remains in the Windows app's local profile; the API key stays in browser session storage. The installer is unsigned, so Windows may show an unknown-publisher warning. Only install a build you trust.
 
 ## Standalone bundle / local run
 

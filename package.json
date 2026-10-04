@@ -1,0 +1,62 @@
+{
+  "name": "owchowch-personal-war-room-desktop",
+  "productName": "Owchowch personal war room",
+  "version": "1.0.0",
+  "description": "A Windows desktop app for Torn rank-war chain timing, hospital watch, and target groups.",
+  "author": "Owchowch",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron .",
+    "postinstall": "node node_modules/electron/install.js",
+    "prepare:python": "node desktop/prepare-python.js",
+    "package:win": "npm run prepare:python && electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "extract-zip": "2.0.1"
+  },
+  "build": {
+    "appId": "ca.owchowch.personalwarroom",
+    "productName": "Owchowch personal war room",
+    "asar": true,
+    "directories": {
+      "output": "downloads/windows-installer"
+    },
+    "files": [
+      "desktop/main.js",
+      "package.json"
+    ],
+    "extraResources": [
+      { "from": "app_server.py", "to": "app/app_server.py" },
+      { "from": "index.html", "to": "app/index.html" },
+      { "from": "manifest.webmanifest", "to": "app/manifest.webmanifest" },
+      { "from": "service-worker.js", "to": "app/service-worker.js" },
+      { "from": "icons", "to": "app/icons" },
+      { "from": "downloads/owchowch-personal-war-room-standalone.zip", "to": "app/downloads/owchowch-personal-war-room-standalone.zip" },
+      { "from": "desktop/python-runtime", "to": "python" }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ],
+      "icon": "icons/owchowch.ico",
+      "artifactName": "Owchowch-Personal-War-Room-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Owchowch personal war room",
+      "deleteAppDataOnUninstall": false,
+      "runAfterFinish": true
+    }
+  }
+}

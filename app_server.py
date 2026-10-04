@@ -442,7 +442,21 @@ class WarroomHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8000"))
-    address = ("0.0.0.0", port)
-    print(f"Owchowch personal war room listening on http://0.0.0.0:{port}")
-    ThreadingHTTPServer(address, WarroomHandler).serve_forever()
+    server = ThreadingHTTPServer((host, port), WarroomHandler)
+    ready_file = os.environ.get("APP_SERVER_READY_FILE", "")
+    if ready_file:
+        ready_path = Path(ready_file)
+        ready_path.parent.mkdir(parents=True, exist_ok=True)
+        ready_path.write_text(str(server.server_address[1]), encoding="ascii")
+    print(f"Owchowch personal war room listening on http://{host}:{server.server_address[1]}")
+    try:
+        server.serve_forever()
+    finally:
+        server.server_close()
+        if ready_file:
+            try:
+                Path(ready_file).unlink(missing_ok=True)
+            except OSError:
+                pass
