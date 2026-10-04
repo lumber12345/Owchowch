@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: owchowch-personal-war-room
+    runtime: python
+    plan: free
+    region: ohio
+    buildCommand: python -m py_compile app_server.py
+    startCommand: python app_server.py
+    healthCheckPath: /api/health
+    autoDeploy: true

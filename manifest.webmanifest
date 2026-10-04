@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "Owchowch personal war room",
+  "short_name": "Owchowch personal war room",
+  "description": "Owchowch personal war room for Torn rank-war chain timing, hospital watch, and target groups.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090f15",
+  "theme_color": "#090f15",
+  "categories": ["games", "utilities"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a1016" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Owchowch personal war room" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <title>Owchowch personal war room</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090f15;
+      --panel: #101922;
+      --panel-2: #131f29;
+      --panel-3: #182631;
+      --line: rgba(170, 199, 211, .12);
+      --line-strong: rgba(170, 199, 211, .2);
+      --text: #e8f0f2;
+      --muted: #82939d;
+      --faint: #5c6d77;
+      --lime: #cbf36a;
+      --mint: #70e1bb;
+      --amber: #f4be64;
+      --red: #fb7979;
+      --blue: #8ac8ff;
+      --radius: 16px;
+      --shadow: 0 14px 40px rgba(0,0,0,.22);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(ellipse at 50% -18%, rgba(61,103,112,.16), transparent 44%),
+        radial-gradient(ellipse at 100% 36%, rgba(68,91,60,.07), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      letter-spacing: .005em;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    .shell { width: min(1460px, calc(100% - 48px)); margin: 0 auto; padding-bottom: 44px; }
+    .topbar {
+      min-height: 76px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--line); gap: 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 210px; }
+    .brand-mark {
+      width: 35px; height: 35px; display: grid; place-items: center; color: var(--lime);
+      background: rgba(203,243,106,.07); border: 1px solid rgba(203,243,106,.26); border-radius: 10px;
+      box-shadow: inset 0 0 18px rgba(203,243,106,.04);
+    }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .brand-name { font-size: 12px; font-weight: 800; letter-spacing: .17em; line-height: 1.2; }
+    .brand-name span { color: var(--lime); }
+    .brand-sub { margin-top: 4px; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .17em; }
+    .topnav { display: flex; align-items: center; gap: 27px; margin-left: 30px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+    .topnav::-webkit-scrollbar { display: none; }
+    .topnav a { flex: 0 0 auto; text-decoration: none; color: var(--muted); font-size: 12px; font-weight: 650; transition: color .18s ease; }
+    .topnav a:hover, .topnav a.active { color: var(--text); }
+    .topnav a.active { position: relative; }
+    .topnav a.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -30px; height: 2px; background: var(--lime); }
+    .top-status { display: flex; align-items: center; gap: 12px; }
+    .local-pill, .war-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; color: #b9c8cd; font-size: 10px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+    .local-pill { cursor: pointer; background: transparent; transition: border-color .16s, color .16s, background .16s; }
+    .local-pill:hover { border-color: rgba(203,243,106,.35); color: var(--text); background: rgba(203,243,106,.035); }
+    .local-pill.connected { border-color: rgba(112,225,187,.28); color: var(--mint); background: rgba(112,225,187,.055); }
+    .local-pill.syncing { border-color: rgba(138,200,255,.28); color: var(--blue); background: rgba(138,200,255,.055); }
+    .local-pill.error { border-color: rgba(244,190,100,.3); color: var(--amber); background: rgba(244,190,100,.055); }
+    .local-pill .live-dot { flex: 0 0 auto; }
+    .war-pill { border-color: rgba(203,243,106,.23); background: rgba(203,243,106,.07); color: var(--lime); }
+    .war-pill.idle { border-color: rgba(244,190,100,.24); background: rgba(244,190,100,.065); color: var(--amber); }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 4px rgba(203,243,106,.09), 0 0 12px rgba(203,243,106,.65); }
+    .top-date { color: var(--muted); font-size: 11px; white-space: nowrap; }
+
+    .hero { padding: 34px 0 24px; display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+    .eyebrow { display: flex; align-items: center; gap: 9px; color: var(--lime); text-transform: uppercase; letter-spacing: .18em; font-size: 10px; font-weight: 800; }
+    .eyebrow .line { display: inline-block; width: 23px; height: 1px; background: var(--lime); opacity: .75; }
+    h1 { margin: 9px 0 6px; font-size: clamp(26px, 3.4vw, 38px); line-height: 1.05; letter-spacing: -.045em; font-weight: 700; }
+    h1 em { color: var(--lime); font-style: normal; }
+    .hero-sub { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; align-items: center; padding-bottom: 2px; }
+    .button { border: 1px solid var(--line-strong); background: #14212a; border-radius: 9px; min-height: 36px; padding: 0 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: #dbe6e8; font-size: 11px; font-weight: 750; letter-spacing: .015em; transition: border-color .16s, background .16s, transform .16s; white-space: nowrap; }
+    .button:hover { border-color: rgba(203,243,106,.45); background: #1a2a32; transform: translateY(-1px); }
+    .button:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+    .button:disabled:hover { border-color: var(--line-strong); background: #14212a; }
+    .button svg { width: 14px; height: 14px; }
+    .button.primary { background: var(--lime); color: #172018; border-color: var(--lime); }
+    .button.primary:hover { background: #d8ff83; border-color: #d8ff83; }
+    .button.subtle { background: transparent; border-color: transparent; color: var(--muted); }
+    .button.subtle:hover { color: var(--text); background: rgba(255,255,255,.04); border-color: transparent; }
+    .button.small { min-height: 29px; padding: 0 9px; font-size: 10px; }
+    .button.icon-only { width: 31px; height: 31px; min-height: 31px; padding: 0; color: var(--muted); }
+    .button.icon-only svg { width: 14px; height: 14px; }
+    .button.danger:hover { color: var(--red); border-color: rgba(251,121,121,.45); background: rgba(251,121,121,.07); }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 2px 0 15px; }
+    .stat-card { position: relative; overflow: hidden; min-height: 112px; padding: 16px 17px 15px; background: linear-gradient(145deg, rgba(21,33,43,.94), rgba(15,24,32,.95)); border: 1px solid var(--line); border-radius: 13px; box-shadow: 0 8px 26px rgba(0,0,0,.1); }
+    .stat-card::after { content: ""; width: 75px; height: 75px; position: absolute; right: -20px; bottom: -34px; border-radius: 50%; background: var(--glow, rgba(203,243,106,.07)); filter: blur(3px); }
+    .stat-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); text-transform: uppercase; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+    .stat-icon { color: var(--accent, var(--lime)); display: inline-flex; }
+    .stat-icon svg { width: 16px; height: 16px; }
+    .stat-number { position: relative; z-index: 1; margin-top: 10px; font-size: 27px; font-weight: 720; letter-spacing: -.045em; line-height: 1; font-variant-numeric: tabular-nums; }
+    .stat-number small { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0; }
+    .stat-caption { position: relative; z-index: 1; margin-top: 8px; color: #788995; font-size: 10px; }
+    .stat-card.timer-stat .stat-number { color: var(--lime); }
+    .stat-card.hospital-stat { --accent: var(--amber); --glow: rgba(244,190,100,.075); }
+    .stat-card.range-stat { --accent: var(--mint); --glow: rgba(112,225,187,.075); }
+    .stat-card.free-stat { --accent: var(--blue); --glow: rgba(138,200,255,.075); }
+    .stat-card.hospital-stat .stat-number { color: var(--amber); }
+    .stat-card.range-stat .stat-number { color: var(--mint); }
+
+    .main-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr); gap: 14px; }
+    .panel { min-width: 0; border: 1px solid var(--line); background: linear-gradient(145deg, rgba(17,27,36,.97), rgba(14,22,30,.97)); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .panel-head { min-height: 60px; padding: 15px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-title-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .panel-title-icon { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--lime); border: 1px solid rgba(203,243,106,.14); background: rgba(203,243,106,.055); flex: 0 0 auto; }
+    .panel-title-icon svg { width: 15px; height: 15px; }
+    .panel-title { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+    .panel-kicker { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .panel-meta { color: var(--muted); font-size: 10px; white-space: nowrap; }
+
+    .chain-panel { min-height: 260px; overflow: hidden; position: relative; }
+    .chain-panel::before { content: ""; pointer-events: none; position: absolute; top: -145px; right: -110px; width: 350px; height: 350px; border: 1px solid rgba(203,243,106,.045); border-radius: 50%; box-shadow: 0 0 0 26px rgba(203,243,106,.018), 0 0 0 57px rgba(203,243,106,.012); }
+    .chain-body { padding: 19px 20px 17px; position: relative; }
+    .chain-grid { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 12px; }
+    .timer-label { color: var(--muted); text-transform: uppercase; letter-spacing: .16em; font-size: 9px; font-weight: 800; }
+    .chain-time { margin: 8px 0 7px; color: var(--lime); font-size: clamp(42px, 6vw, 60px); line-height: .97; font-weight: 720; letter-spacing: -.06em; font-variant-numeric: tabular-nums; text-shadow: 0 0 32px rgba(203,243,106,.09); }
+    .chain-time.expired { color: var(--red); text-shadow: 0 0 28px rgba(251,121,121,.13); }
+    .chain-hint { color: var(--muted); font-size: 11px; }
+    .chain-hint strong { color: #d4e1dd; font-weight: 700; }
+    .chain-number { width: 94px; height: 94px; border-radius: 50%; border: 1px solid rgba(203,243,106,.25); background: radial-gradient(circle at 50% 45%, rgba(203,243,106,.11), rgba(203,243,106,.025) 70%); display: flex; align-items: center; justify-content: center; flex-direction: column; box-shadow: inset 0 0 24px rgba(203,243,106,.035), 0 0 0 7px rgba(203,243,106,.025); }
+    .chain-number b { color: var(--lime); font-size: 26px; font-weight: 720; line-height: 1; font-variant-numeric: tabular-nums; }
+    .chain-number span { margin-top: 6px; color: var(--muted); font-size: 8px; text-transform: uppercase; letter-spacing: .15em; font-weight: 800; }
+    .meter { height: 4px; margin: 21px 0 15px; overflow: hidden; border-radius: 5px; background: rgba(255,255,255,.075); }
+    .meter-fill { width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #d0f875, #8be2a6); box-shadow: 0 0 12px rgba(203,243,106,.28); transition: width .5s linear; }
+    .meter-fill.expired { background: var(--red); box-shadow: none; }
+    .chain-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .chain-details { display: flex; align-items: center; gap: 17px; color: var(--muted); font-size: 10px; }
+    .chain-details span { display: inline-flex; gap: 6px; align-items: center; }
+    .chain-details b { color: #dce5e6; font-weight: 650; }
+    .chain-actions { display: flex; align-items: center; gap: 6px; }
+    .chain-actions .button { min-height: 31px; }
+
+    .hospital-panel { min-height: 260px; }
+    .queue-count { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 6px; border: 1px solid rgba(244,190,100,.24); border-radius: 7px; background: rgba(244,190,100,.07); color: var(--amber); font-size: 10px; font-weight: 800; }
+    .hospital-list { padding: 3px 17px 12px; }
+    .hospital-row { display: grid; grid-template-columns: 31px minmax(0,1fr) auto; align-items: center; gap: 10px; min-height: 50px; border-bottom: 1px solid rgba(170,199,211,.075); }
+    .hospital-row:last-child { border-bottom: 0; }
+    .avatar { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid rgba(255,255,255,.1); background: linear-gradient(145deg, #253944, #17232c); color: #bfd1d2; font-size: 10px; font-weight: 800; }
+    .hospital-row .member-name, .target-name { display: block; width: fit-content; color: #e6eff0; text-decoration: none; font-size: 11px; line-height: 1.35; font-weight: 720; }
+    .member-name:hover, .target-name:hover { color: var(--lime); text-decoration: underline; text-decoration-color: rgba(203,243,106,.4); text-underline-offset: 3px; }
+    .member-sub { margin-top: 3px; color: var(--faint); font-size: 9px; }
+    .hospital-timer { color: var(--amber); text-align: right; font-size: 11px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .hospital-timer.released { color: var(--mint); }
+    .timer-caption { margin-top: 3px; color: var(--faint); font-size: 8px; text-align: right; letter-spacing: .08em; text-transform: uppercase; }
+    .empty-queue { color: var(--muted); padding: 24px 6px; text-align: center; font-size: 11px; }
+
+    .target-panel { margin-top: 14px; }
+    .target-head { min-height: 72px; }
+    .target-heading { display: flex; align-items: center; gap: 11px; }
+    .range-summary { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .range-summary b { color: var(--mint); font-size: 12px; }
+    .target-tools { padding: 12px 17px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
+    .filter-group { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
+    .filter-chip { border: 1px solid transparent; background: transparent; color: var(--muted); border-radius: 7px; padding: 7px 10px; cursor: pointer; font-size: 10px; font-weight: 700; transition: .16s; }
+    .filter-chip:hover { color: var(--text); background: rgba(255,255,255,.035); }
+    .filter-chip.selected { color: var(--lime); border-color: rgba(203,243,106,.15); background: rgba(203,243,106,.065); }
+    .target-actions { display: flex; align-items: center; gap: 8px; }
+    .search-box { position: relative; width: min(220px, 23vw); }
+    .search-box svg { position: absolute; top: 50%; left: 10px; transform: translateY(-50%); width: 13px; height: 13px; color: var(--faint); pointer-events: none; }
+    .search-box input { width: 100%; min-height: 34px; outline: 0; padding: 0 10px 0 31px; border: 1px solid var(--line); border-radius: 8px; background: rgba(5,11,15,.24); color: var(--text); font-size: 10px; }
+    .search-box input:focus { border-color: rgba(203,243,106,.35); }
+    .search-box input::placeholder { color: #677781; }
+    .lanes { padding: 14px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 11px; }
+    .lane { min-width: 0; border: 1px solid var(--line); background: rgba(8,14,19,.27); border-radius: 12px; overflow: hidden; }
+    .lane-header { display: flex; align-items: center; justify-content: space-between; gap: 9px; padding: 11px 12px; border-bottom: 1px solid var(--line); }
+    .lane-title-box { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .lane-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--lane-color); box-shadow: 0 0 10px color-mix(in srgb, var(--lane-color), transparent 52%); }
+    .lane-title { margin: 0; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .11em; white-space: nowrap; }
+    .lane-desc { display: block; margin-top: 3px; color: var(--faint); font-size: 8px; letter-spacing: .025em; }
+    .lane-count { min-width: 21px; height: 21px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--lane-color), transparent 80%); color: var(--lane-color); background: color-mix(in srgb, var(--lane-color), transparent 94%); border-radius: 6px; font-size: 9px; font-weight: 800; }
+    .lane-content { padding: 7px; min-height: 108px; }
+    .target-card { position: relative; margin-bottom: 7px; padding: 10px; border: 1px solid rgba(170,199,211,.095); border-radius: 9px; background: rgba(20,31,40,.69); transition: border-color .17s, transform .17s, background .17s; }
+    .target-card:last-child { margin-bottom: 0; }
+    .target-card:hover { border-color: rgba(170,199,211,.22); background: rgba(24,38,48,.8); transform: translateY(-1px); }
+    .target-card.out-of-range { opacity: .57; }
+    .target-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .target-main { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .target-main .avatar { width: 29px; height: 29px; border-radius: 8px; }
+    .target-id { display: block; margin-top: 2px; color: var(--faint); font-size: 8px; }
+    .target-state { display: inline-flex; align-items: center; gap: 5px; padding: 5px 6px; border-radius: 5px; color: var(--mint); background: rgba(112,225,187,.07); font-size: 8px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .target-state.hospital { color: var(--amber); background: rgba(244,190,100,.08); }
+    .target-state.out { color: #aab6bb; background: rgba(170,182,187,.06); }
+    .target-state.other { color: var(--blue); background: rgba(138,200,255,.07); }
+    .target-state svg { width: 10px; height: 10px; }
+    .target-note { margin: 8px 0 9px; min-height: 12px; overflow: hidden; color: #81919a; font-size: 9px; white-space: nowrap; text-overflow: ellipsis; }
+    .target-controls { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding-top: 7px; border-top: 1px solid rgba(170,199,211,.07); }
+    .target-range-select { width: 106px; color: #9cabb1; background: #101a22; border: 1px solid rgba(170,199,211,.12); border-radius: 6px; padding: 4px 6px; outline: none; font-size: 8px; }
+    .target-range-select:focus { border-color: rgba(203,243,106,.3); }
+    .target-control-right { display: flex; align-items: center; gap: 3px; }
+    .inrange-toggle { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: 8px; white-space: nowrap; cursor: pointer; }
+    .inrange-toggle input { accent-color: var(--lime); width: 11px; height: 11px; margin: 0; }
+    .mini-action { width: 23px; height: 23px; padding: 0; display: grid; place-items: center; border: 1px solid transparent; color: #71818b; background: transparent; border-radius: 5px; cursor: pointer; }
+    .mini-action:hover { color: var(--text); background: rgba(255,255,255,.06); border-color: var(--line); }
+    .mini-action.delete:hover { color: var(--red); background: rgba(251,121,121,.08); border-color: rgba(251,121,121,.16); }
+    .mini-action svg { width: 12px; height: 12px; }
+    .lane-empty { min-height: 94px; display: grid; place-items: center; padding: 12px; color: #5e707a; font-size: 9px; text-align: center; line-height: 1.6; }
+    .board-note { display: flex; align-items: flex-start; gap: 8px; margin: 0 15px 14px; padding: 10px 11px; border: 1px solid rgba(138,200,255,.1); border-radius: 8px; color: #91a1aa; background: rgba(138,200,255,.035); font-size: 9px; line-height: 1.55; }
+    .board-note svg { width: 13px; height: 13px; flex: 0 0 auto; color: var(--blue); margin-top: 1px; }
+    .board-note strong { color: #c0d2d8; font-weight: 700; }
+    .all-war-targets-panel { margin-top: 14px; }
+    .all-target-tools { padding: 11px 15px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); }
+    .all-target-tools .target-actions { min-width: 220px; }
+    .war-table-scroll { overflow-x: auto; }
+    .war-target-table { width: 100%; min-width: 790px; border-collapse: collapse; text-align: left; }
+    .war-target-table th { padding: 10px 15px; color: #71838d; background: rgba(8,14,19,.34); border-bottom: 1px solid var(--line); font-size: 8px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+    .war-target-table td { padding: 11px 15px; border-bottom: 1px solid rgba(170,199,211,.07); color: #b8c7cc; font-size: 10px; white-space: nowrap; }
+    .war-target-table tr:last-child td { border-bottom: 0; }
+    .war-target-table tbody tr:hover { background: rgba(255,255,255,.025); }
+    .war-player-link { color: #e6eff0; font-size: 11px; font-weight: 750; text-decoration: none; }
+    .war-player-link:hover { color: var(--lime); text-decoration: underline; text-underline-offset: 3px; }
+    .war-player-id { display: block; margin-top: 3px; color: var(--faint); font-size: 8px; }
+    .war-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 7px; border-radius: 6px; color: var(--mint); background: rgba(112,225,187,.07); font-size: 8px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+    .war-status.hospital { color: var(--amber); background: rgba(244,190,100,.08); }
+    .war-status.other { color: var(--blue); background: rgba(138,200,255,.07); }
+    .war-status.out { color: #aab6bb; background: rgba(170,182,187,.06); }
+    .war-range { color: #aab9be; font-size: 9px; }
+    .war-inrange { display: inline-flex; padding: 4px 6px; border-radius: 5px; color: var(--mint); background: rgba(112,225,187,.065); font-size: 8px; font-weight: 800; text-transform: uppercase; }
+    .war-inrange.no { color: #8d9ba1; background: rgba(170,182,187,.06); }
+    .war-empty { padding: 30px 18px; text-align: center; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .downloads-panel { margin-top: 14px; }
+    .downloads-section-label { margin: 14px 15px -5px; color: #93a3aa; text-transform: uppercase; font-size: 9px; font-weight: 800; letter-spacing: .13em; }
+    .app-section-label { margin-top: 5px; }
+    .downloads-grid { padding: 14px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 11px; }
+    .download-card { min-width: 0; padding: 15px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(145deg, rgba(20,31,40,.8), rgba(10,17,23,.74)); }
+    .download-card:hover { border-color: rgba(203,243,106,.2); }
+    .download-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 9px; }
+    .download-icon { width: 34px; height: 34px; display: grid; place-items: center; color: var(--mint); border: 1px solid rgba(112,225,187,.17); background: rgba(112,225,187,.06); border-radius: 9px; }
+    .download-icon svg { width: 16px; height: 16px; }
+    .download-icon.json { color: var(--lime); border-color: rgba(203,243,106,.18); background: rgba(203,243,106,.06); }
+    .download-icon.hospital { color: var(--amber); border-color: rgba(244,190,100,.18); background: rgba(244,190,100,.06); }
+    .download-format { padding: 5px 7px; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; font-size: 8px; font-weight: 800; letter-spacing: .1em; }
+    .download-title { margin: 13px 0 5px; font-size: 12px; font-weight: 760; }
+    .download-description { margin: 0; min-height: 34px; color: var(--muted); font-size: 9px; line-height: 1.6; }
+    .download-footer { margin-top: 13px; padding-top: 11px; border-top: 1px solid rgba(170,199,211,.08); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .download-count { color: #82939d; font-size: 9px; white-space: nowrap; }
+    .download-count b { color: #d9e5e6; font-weight: 750; }
+    .download-footer .button { flex: 0 0 auto; }
+    .footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 15px 2px 0; color: #657680; font-size: 9px; }
+    .footer strong { color: #9eafb5; font-weight: 650; }
+    .footer-right { display: flex; gap: 12px; align-items: center; }
+    .footer button { color: #71818a; background: none; border: 0; padding: 3px 0; cursor: pointer; font-size: 9px; text-decoration: underline; text-decoration-color: rgba(113,129,138,.35); text-underline-offset: 2px; }
+    .footer button:hover { color: var(--text); }
+
+    dialog { width: min(450px, calc(100vw - 28px)); max-width: 100%; color: var(--text); border: 1px solid var(--line-strong); border-radius: 15px; padding: 0; background: #101a23; box-shadow: 0 25px 90px rgba(0,0,0,.65); }
+    dialog::backdrop { background: rgba(2,7,10,.7); backdrop-filter: blur(4px); }
+    .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding: 18px 20px 14px; border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { margin: 0; font-size: 15px; font-weight: 750; letter-spacing: -.01em; }
+    .dialog-head p { margin: 5px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .dialog-form { padding: 17px 20px 19px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { color: #aab8be; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .field input, .field select, .field textarea { width: 100%; color: var(--text); background: rgba(4,10,14,.34); border: 1px solid var(--line-strong); border-radius: 7px; outline: 0; padding: 9px 10px; font-size: 11px; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: rgba(203,243,106,.45); }
+    .field input::placeholder, .field textarea::placeholder { color: #657680; }
+    .field textarea { resize: vertical; min-height: 57px; }
+    .check-field { flex-direction: row; align-items: center; gap: 8px; align-self: end; min-height: 34px; color: #aab8be; font-size: 10px; }
+    .check-field input { accent-color: var(--lime); }
+    .form-foot { margin-top: 17px; display: flex; justify-content: flex-end; gap: 8px; }
+    .dialog-close { background: none; border: 0; color: var(--muted); padding: 4px; cursor: pointer; }
+    .dialog-close:hover { color: var(--text); }
+    .dialog-close svg { width: 16px; height: 16px; display: block; }
+    .toast { position: fixed; left: 50%; bottom: 22px; z-index: 20; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; padding: 10px 14px; border: 1px solid rgba(203,243,106,.25); border-radius: 9px; background: #1c2a2c; color: #e2f5cf; box-shadow: 0 12px 32px rgba(0,0,0,.35); font-size: 11px; transition: opacity .2s, transform .2s; }
+    .toast.show { opacity: 1; transform: translate(-50%,0); }
+    .hidden { display: none !important; }
+
+    @media (max-width: 980px) {
+      .shell { width: min(100% - 32px, 760px); }
+      .topnav { gap: 16px; margin-left: 10px; }
+      .top-date { display: none; }
+      .main-grid { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+      .search-box { width: 190px; }
+    }
+    @media (max-width: 640px) {
+      .shell { width: calc(100% - 24px); }
+      .topbar { min-height: 64px; gap: 8px; }
+      .brand { min-width: 0; }
+      .brand-mark { width: 32px; height: 32px; }
+      .brand-name { font-size: 10px; }
+      .brand-sub { font-size: 8px; }
+      .topnav { display: none; }
+      .top-status { margin-left: auto; }
+      .local-pill { font-size: 8px; padding: 6px 8px; }
+      .hero { padding: 27px 0 20px; display: block; }
+      h1 { font-size: 29px; }
+      .hero-actions { margin-top: 15px; }
+      .stat-grid { gap: 8px; }
+      .stat-card { min-height: 100px; padding: 13px 13px; }
+      .stat-number { font-size: 24px; }
+      .stat-card-head { font-size: 8px; }
+      .panel-head { padding: 13px 14px; }
+      .chain-body { padding: 17px 14px 14px; }
+      .chain-number { width: 77px; height: 77px; }
+      .chain-number b { font-size: 22px; }
+      .chain-bottom { align-items: flex-start; flex-direction: column; }
+      .chain-details { gap: 12px; }
+      .chain-actions { width: 100%; justify-content: flex-end; }
+      .hospital-list { padding: 3px 13px 12px; }
+      .target-head { align-items: flex-start; flex-direction: column; }
+      .range-summary { margin-left: 38px; }
+      .target-tools { align-items: stretch; flex-direction: column; padding: 10px 12px; }
+      .all-target-tools { align-items: stretch; flex-direction: column; padding: 10px 12px; }
+      .all-target-tools .target-actions { min-width: 0; width: 100%; }
+      .target-actions { justify-content: space-between; }
+      .search-box { width: auto; flex: 1; }
+      .lanes { grid-template-columns: 1fr; padding: 10px; }
+      .downloads-grid { grid-template-columns: 1fr; padding: 10px; }
+      .download-footer { align-items: flex-start; flex-direction: column; }
+      .download-count { white-space: normal; }
+      .download-footer .button { align-self: flex-start; }
+      .lane-content { min-height: auto; }
+      .lane-empty { min-height: 65px; }
+      .footer { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden">
+    <symbol id="i-crosshair" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 1.8v4M12 18.2v4M1.8 12h4m12.4 0h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-hospital" viewBox="0 0 24 24"><path d="M4 21V5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5V21M2 21h20M9 4V2h6v2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M12 8v6m-3-3h6M8 17h.01M16 17h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="5.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="m13.2 2.5-9 11h6.7l-.3 8 9.2-11.2h-6.7l.1-7.8Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="m4 16.8-.8 4 4-.8L20 7.2 16.8 4 4 16.8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m14.8 6 3.2 3.2" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16m-10 0V4h4v3m4 0-1 14H7L6 7m3 3v7m6-7v7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 11v5m0-8h.01" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6m-10 4L20 4M19 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 18v3h16v-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Owchowch personal war room home" style="text-decoration:none">
+        <div class="brand-mark"><svg><use href="#i-crosshair"/></svg></div>
+        <div><div class="brand-name">OWCHOWCH</div><div class="brand-sub">PERSONAL WAR ROOM</div></div>
+      </a>
+      <nav class="topnav" aria-label="Main navigation">
+        <a class="active" href="#top">Overview</a>
+        <a href="#chain">Chain timer</a>
+        <a href="#hospital">Hospital</a>
+        <a href="#range-board">Target groups</a>
+        <a href="#all-war-targets">All war targets</a>
+        <a href="#downloads">Downloads</a>
+      </nav>
+      <div class="top-status"><button class="local-pill" id="apiSetup" type="button" title="Connect this board to the Torn API"><span class="live-dot" id="apiDot"></span><span id="apiLabel">Connect API</span></button><span class="top-date" id="todayDate">—</span></div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div>
+          <div class="eyebrow"><span class="line"></span> War room <span class="line"></span></div>
+          <h1>Keep the pressure <em>on.</em></h1>
+          <p class="hero-sub">Chain windows, hospital releases, and your in-range target lanes — in one place.</p>
+        </div>
+        <div class="hero-actions">
+          <button class="button" id="apiSettingsButton" type="button" title="Connect Torn API and auto-detect your ranked-war opponent"><svg><use href="#i-crosshair"/></svg> API settings</button>
+          <button class="button" id="exportButton" type="button" title="Download a backup of this board"><svg><use href="#i-external"/></svg> Export board</button>
+          <button class="button primary" id="addTargetTop" type="button"><svg><use href="#i-plus"/></svg> Add target</button>
+        </div>
+      </section>
+
+      <section class="stat-grid" aria-label="War overview">
+        <article class="stat-card timer-stat">
+          <div class="stat-card-head"><span>Chain window</span><span class="stat-icon"><svg><use href="#i-clock"/></svg></span></div>
+          <div class="stat-number" id="statChain">04:32</div>
+          <div class="stat-caption" id="statChainCaption">Time until chain timer expires</div>
+        </article>
+        <article class="stat-card hospital-stat">
+          <div class="stat-card-head"><span>Hospitalized</span><span class="stat-icon"><svg><use href="#i-hospital"/></svg></span></div>
+          <div class="stat-number"><span id="statHospital">0</span><small> targets</small></div>
+          <div class="stat-caption">Tracked release timers</div>
+        </article>
+        <article class="stat-card range-stat">
+          <div class="stat-card-head"><span>In range</span><span class="stat-icon"><svg><use href="#i-target"/></svg></span></div>
+          <div class="stat-number"><span id="statRange">0</span><small> / <span id="statTotal">0</span></small></div>
+          <div class="stat-caption">Targets marked in range</div>
+        </article>
+        <article class="stat-card free-stat">
+          <div class="stat-card-head"><span>Ready now</span><span class="stat-icon"><svg><use href="#i-bolt"/></svg></span></div>
+          <div class="stat-number"><span id="statReady">0</span><small> targets</small></div>
+          <div class="stat-caption">In-range and out of hospital</div>
+        </article>
+      </section>
+
+      <section class="main-grid">
+        <article class="panel chain-panel" id="chain">
+          <div class="panel-head">
+            <div class="panel-title-wrap"><div class="panel-title-icon"><svg><use href="#i-clock"/></svg></div><div><h2 class="panel-title">Chain timer</h2><div class="panel-kicker" id="chainKicker">Manual timer · connect API for live faction chain</div></div></div>
+            <span class="war-pill" id="chainState"><span class="live-dot"></span> Active</span>
+          </div>
+          <div class="chain-body">
+            <div class="chain-grid">
+              <div>
+                <div class="timer-label">Time remaining</div>
+                <div class="chain-time" id="chainClock">04:32</div>
+                <div class="chain-hint" id="chainHint">Log a hit to reset the <strong>5 minute</strong> window.</div>
+              </div>
+              <div class="chain-number"><b id="chainHits">47</b><span>Chain hits</span></div>
+            </div>
+            <div class="meter"><div class="meter-fill" id="chainMeter"></div></div>
+            <div class="chain-bottom">
+              <div class="chain-details"><span id="chainWindowLabel">Window <b>05:00</b></span><span><span id="chainDetailLabel">Last hit</span> <b id="lastHitText">just now</b></span></div>
+              <div class="chain-actions">
+                <button class="button small subtle" id="resetChain" type="button">Reset</button>
+                <button class="button small primary" id="logHit" type="button"><svg><use href="#i-bolt"/></svg> Log hit · reset timer</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel hospital-panel" id="hospital">
+          <div class="panel-head">
+            <div class="panel-title-wrap"><div class="panel-title-icon" style="color:var(--amber);border-color:rgba(244,190,100,.16);background:rgba(244,190,100,.06)"><svg><use href="#i-hospital"/></svg></div><div><h2 class="panel-title">Hospital watch</h2><div class="panel-kicker">Next releases from your target list</div></div></div>
+            <span class="queue-count" id="hospitalCount">0</span>
+          </div>
+          <div class="hospital-list" id="hospitalList"></div>
+        </article>
+      </section>
+
+      <section class="panel target-panel" id="range-board">
+        <div class="panel-head target-head">
+          <div class="target-heading">
+            <div class="panel-title-icon" style="color:var(--mint);border-color:rgba(112,225,187,.16);background:rgba(112,225,187,.06)"><svg><use href="#i-target"/></svg></div>
+            <div><h2 class="panel-title">In-range target groups</h2><div class="panel-kicker" id="targetKicker">Opponent is auto-detected from your active ranked-war API data.</div></div>
+          </div>
+          <div class="range-summary"><b id="boardRangeCount">0</b><span>in range</span><span style="color:#50616a">·</span><span id="boardTargetCount">0 total</span></div>
+        </div>
+        <div class="target-tools">
+          <div class="filter-group" role="group" aria-label="Filter targets">
+            <button class="filter-chip selected" type="button" data-filter="all">All targets</button>
+            <button class="filter-chip" type="button" data-filter="inrange">In range</button>
+            <button class="filter-chip" type="button" data-filter="hospital">Hospitalized</button>
+          </div>
+          <div class="target-actions">
+            <label class="search-box"><svg><use href="#i-search"/></svg><input id="targetSearch" type="search" placeholder="Find a target…" aria-label="Find a target" /></label>
+            <button class="button small" id="addTargetBoard" type="button"><svg><use href="#i-plus"/></svg> Add target</button>
+          </div>
+        </div>
+        <div class="lanes" id="lanes"></div>
+        <div class="board-note"><svg><use href="#i-info"/></svg><span><strong>Range lanes are manual.</strong> Sort targets using your own war intel; this board does not estimate battle stats or verify Torn attack range. Add a Torn ID to make a target name open their profile.</span></div>
+      </section>
+
+      <section class="panel all-war-targets-panel" id="all-war-targets">
+        <div class="panel-head target-head">
+          <div class="target-heading">
+            <div class="panel-title-icon" style="color:var(--blue);border-color:rgba(138,200,255,.16);background:rgba(138,200,255,.06)"><svg><use href="#i-crosshair"/></svg></div>
+            <div><h2 class="panel-title">All war targets</h2><div class="panel-kicker" id="allWarTargetKicker">Full tracked roster, including out-of-range targets.</div></div>
+          </div>
+          <div class="range-summary"><b id="allWarTargetCount">0</b><span>targets</span><span style="color:#50616a">·</span><span><b id="allWarInRangeCount">0</b> in range</span></div>
+        </div>
+        <div class="all-target-tools">
+          <div class="filter-group" role="group" aria-label="Filter all war targets">
+            <button class="filter-chip selected" type="button" data-war-filter="all">All targets</button>
+            <button class="filter-chip" type="button" data-war-filter="inrange">In range</button>
+            <button class="filter-chip" type="button" data-war-filter="out">Out of range</button>
+            <button class="filter-chip" type="button" data-war-filter="hospital">Hospitalized</button>
+          </div>
+          <div class="target-actions">
+            <label class="search-box"><svg><use href="#i-search"/></svg><input id="allTargetSearch" type="search" placeholder="Search full roster…" aria-label="Search all war targets" /></label>
+            <button class="button small" id="exportAllWarTargets" type="button"><svg><use href="#i-download"/></svg> Export CSV</button>
+          </div>
+        </div>
+        <div class="war-table-scroll">
+          <table class="war-target-table" aria-label="All war targets">
+            <thead><tr><th>Player</th><th>Status</th><th>Range group</th><th>In range</th><th>Level</th><th>Intel note</th></tr></thead>
+            <tbody id="allWarTargetsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel downloads-panel" id="downloads">
+        <div class="panel-head">
+          <div class="panel-title-wrap"><div class="panel-title-icon" style="color:var(--blue);border-color:rgba(138,200,255,.16);background:rgba(138,200,255,.06)"><svg><use href="#i-download"/></svg></div><div><h2 class="panel-title">Downloads</h2><div class="panel-kicker">Export your board or a shareable target list.</div></div></div>
+          <span class="panel-meta">API keys are never included</span>
+        </div>
+        <div class="downloads-section-label">Board exports</div>
+        <div class="downloads-grid">
+          <article class="download-card">
+            <div class="download-card-head"><div class="download-icon json"><svg><use href="#i-download"/></svg></div><span class="download-format">JSON</span></div>
+            <h3 class="download-title">Full board backup</h3>
+            <p class="download-description">Save target groups, notes, timers, and the latest API snapshot as a restorable data file.</p>
+            <div class="download-footer"><span class="download-count">Includes <b id="downloadBoardCount">0</b> targets</span><button class="button small" id="downloadBoardJson" type="button"><svg><use href="#i-download"/></svg> Download</button></div>
+          </article>
+          <article class="download-card">
+            <div class="download-card-head"><div class="download-icon"><svg><use href="#i-target"/></svg></div><span class="download-format">CSV</span></div>
+            <h3 class="download-title">Target roster</h3>
+            <p class="download-description">A spreadsheet-friendly list with Torn IDs, profile links, range lanes, statuses, and intel notes.</p>
+            <div class="download-footer"><span class="download-count">Includes <b id="downloadTargetCount">0</b> targets</span><button class="button small" id="downloadRosterCsv" type="button"><svg><use href="#i-download"/></svg> Download</button></div>
+          </article>
+          <article class="download-card">
+            <div class="download-card-head"><div class="download-icon hospital"><svg><use href="#i-hospital"/></svg></div><span class="download-format">CSV</span></div>
+            <h3 class="download-title">Hospital watch</h3>
+            <p class="download-description">Export currently hospitalized targets and their release times for quick sharing or sorting.</p>
+            <div class="download-footer"><span class="download-count">Active <b id="downloadHospitalCount">0</b> timers</span><button class="button small" id="downloadHospitalCsv" type="button"><svg><use href="#i-download"/></svg> Download</button></div>
+          </article>
+        </div>
+        <div class="downloads-section-label app-section-label">Standalone app</div>
+        <div class="downloads-grid">
+          <article class="download-card">
+            <div class="download-card-head"><div class="download-icon json"><svg><use href="#i-download"/></svg></div><span class="download-format">ZIP BUNDLE</span></div>
+            <h3 class="download-title">Standalone version</h3>
+            <p class="download-description">Complete app files, API bridge, offline PWA shell, icons, and setup guide. Unzip, then run the included server.</p>
+            <div class="download-footer"><span class="download-count">Python · no build step</span><a class="button small" href="/downloads/owchowch-personal-war-room-standalone.zip" download><svg><use href="#i-download"/></svg> Download ZIP</a></div>
+          </article>
+          <article class="download-card">
+            <div class="download-card-head"><div class="download-icon"><svg><use href="#i-bolt"/></svg></div><span class="download-format">ANDROID · PWA</span></div>
+            <h3 class="download-title">Install on Android</h3>
+            <p class="download-description">Install Owchowch personal war room as a standalone home-screen app in Chrome. It caches the app shell for offline use.</p>
+            <div class="download-footer"><span class="download-count" id="androidInstallStatus">Use this HTTPS app link</span><button class="button small" id="installPwa" type="button">Install app</button></div>
+          </article>
+          <article class="download-card">
+            <div class="download-card-head"><div class="download-icon hospital"><svg><use href="#i-crosshair"/></svg></div><span class="download-format">iOS · PWA</span></div>
+            <h3 class="download-title">Add to iPhone / iPad</h3>
+            <p class="download-description">Open this same HTTPS link in Safari, tap Share, then choose Add to Home Screen. iOS installs it without an App Store download.</p>
+            <div class="download-footer"><span class="download-count">Safari → Share → Add to Home Screen</span><button class="button small" id="copyInstallLink" type="button">Copy app link</button></div>
+          </article>
+        </div>
+        <div class="board-note app-note"><svg><use href="#i-info"/></svg><span><strong>Mobile format:</strong> iOS and Android install the PWA as a standalone app; this bundle is not a signed APK or IPA. The offline shell works without a connection, while live Torn API sync needs the app server and network.</span></div>
+      </section>
+
+      <footer class="footer">
+        <span><strong>Owchowch personal war room</strong> · Target groups are saved in this browser.</span>
+        <span class="footer-right"><span>API key stays in this tab session</span><button id="resetDemo" type="button">Reset sample board</button></span>
+      </footer>
+    </main>
+  </div>
+
+  <dialog id="targetDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-head">
+      <div><h2 id="dialogTitle">Add target</h2><p>Save a Torn profile, range lane, and optional hospital release timer.</p></div>
+      <button class="dialog-close" id="closeDialog" type="button" aria-label="Close"><svg><use href="#i-x"/></svg></button>
+    </div>
+    <form class="dialog-form" id="targetForm">
+      <input type="hidden" id="editId" />
+      <div class="form-grid">
+        <div class="field"><label for="targetName">Player name</label><input id="targetName" name="name" required maxlength="40" placeholder="Torn username" autocomplete="off" /></div>
+        <div class="field"><label for="targetXid">Torn profile ID</label><input id="targetXid" name="xid" required inputmode="numeric" pattern="[0-9]+" maxlength="16" placeholder="e.g. 123456" autocomplete="off" /></div>
+        <div class="field"><label for="targetRange">Range group</label><select id="targetRange" name="range"><option value="favorable">Soft targets</option><option value="even">Even matchups</option><option value="stretch">Stretch targets</option></select></div>
+        <div class="field"><label for="hospitalMinutes">Hospital timer (minutes)</label><input id="hospitalMinutes" name="hospitalMinutes" type="number" min="0" max="10080" placeholder="0 = not hospitalized" /></div>
+        <div class="field full"><label for="targetNote">Intel note <span style="font-weight:500;color:var(--faint);letter-spacing:0;text-transform:none">· optional</span></label><textarea id="targetNote" name="note" maxlength="110" placeholder="Short reminder for your group"></textarea></div>
+        <label class="check-field field full"><input id="targetInRange" type="checkbox" checked /> Mark as in range</label>
+      </div>
+      <div class="form-foot"><button class="button" id="cancelDialog" type="button">Cancel</button><button class="button primary" type="submit" id="saveTarget">Save target</button></div>
+    </form>
+  </dialog>
+  <dialog id="apiDialog" aria-labelledby="apiDialogTitle">
+    <div class="dialog-head">
+      <div><h2 id="apiDialogTitle">Connect Torn API</h2><p>Detect your active ranked war from your faction's API data, then load the opponent roster and hospital states.</p></div>
+      <button class="dialog-close" id="closeApiDialog" type="button" aria-label="Close"><svg><use href="#i-x"/></svg></button>
+    </div>
+    <form class="dialog-form" id="apiForm">
+      <div class="form-grid">
+        <div class="field full"><label for="apiKeyInput">Torn API key</label><input id="apiKeyInput" type="password" maxlength="100" placeholder="Paste key · kept for this tab" autocomplete="new-password" /><small style="color:var(--muted);font-size:9px;line-height:1.5">Needs access to your faction's wars/ranked wars and chain, your faction info, and faction member data. The key is held in this tab session and sent to the app server, then Torn. For a real key, run this app on a server you control.</small></div>
+      </div>
+      <div class="form-foot" style="justify-content:space-between">
+        <button class="button subtle" id="forgetApiKey" type="button">Forget key</button>
+        <div style="display:flex;gap:8px"><button class="button" id="cancelApiDialog" type="button">Cancel</button><button class="button primary" type="submit" id="connectApiButton">Connect &amp; sync</button></div>
+      </div>
+      <p id="apiDialogMessage" style="margin:11px 0 0;color:var(--muted);font-size:9px;line-height:1.5">API requests use Torn's official v2 faction members and chain endpoints. Your key is not written into the app files or exported board.</p>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const STORE_KEY = 'torn-warroom-board-v1';
+      const API_KEY_STORE = 'torn-warroom-api-key-session';
+      const API_REFRESH_MS = 60 * 1000;
+      const CHAIN_WINDOW = 5 * 60 * 1000;
+      const LANES = [
+        { key: 'favorable', label: 'Soft targets', short: 'SOFT', desc: 'Favorable matchups', color: '#70e1bb' },
+        { key: 'even', label: 'Even matchups', short: 'EVEN', desc: 'Balanced matchups', color: '#cbf36a' },
+        { key: 'stretch', label: 'Stretch targets', short: 'STRETCH', desc: 'Higher resistance', color: '#f4be64' }
+      ];
+      const byId = (id) => document.getElementById(id);
+      const makeId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      const sampleTargets = () => {
+        const now = Date.now();
+        return [
+          { id: makeId(), name: 'Demo Vale', xid: '1234567', range: 'favorable', inRange: true, hospitalUntil: now + 3 * 60 * 1000 + 41 * 1000, note: 'Sample roster entry' },
+          { id: makeId(), name: 'Demo Kestrel', xid: '1234568', range: 'favorable', inRange: true, hospitalUntil: now + 11 * 60 * 1000 + 18 * 1000, note: 'Watch release' },
+          { id: makeId(), name: 'Demo Lumen', xid: '1234569', range: 'favorable', inRange: true, hospitalUntil: null, note: 'Ready to check' },
+          { id: makeId(), name: 'Demo Mako', xid: '1234570', range: 'favorable', inRange: false, hospitalUntil: null, note: 'Out of range for now' },
+          { id: makeId(), name: 'Demo North', xid: '1234571', range: 'even', inRange: true, hospitalUntil: now + 6 * 60 * 1000 + 52 * 1000, note: 'Recheck after release' },
+          { id: makeId(), name: 'Demo Onyx', xid: '1234572', range: 'even', inRange: true, hospitalUntil: null, note: 'Clear' },
+          { id: makeId(), name: 'Demo Rook', xid: '1234573', range: 'even', inRange: true, hospitalUntil: now + 18 * 60 * 1000 + 9 * 1000, note: 'Long hospital timer' },
+          { id: makeId(), name: 'Demo Sable', xid: '1234574', range: 'even', inRange: false, hospitalUntil: null, note: 'Needs intel' },
+          { id: makeId(), name: 'Demo Vex', xid: '1234575', range: 'stretch', inRange: true, hospitalUntil: null, note: 'Stretch target' },
+          { id: makeId(), name: 'Demo Wisp', xid: '1234576', range: 'stretch', inRange: true, hospitalUntil: now + 27 * 60 * 1000 + 3 * 1000, note: 'Check back later' },
+          { id: makeId(), name: 'Demo Yarrow', xid: '1234577', range: 'stretch', inRange: false, hospitalUntil: null, note: '' }
+        ].map((target) => ({ ...target, source: 'demo' }));
+      };
+      const defaultState = () => ({
+        targets: sampleTargets(),
+        chain: { hits: 47, deadline: Date.now() + 4 * 60 * 1000 + 32 * 1000, lastHit: Date.now() - 28 * 1000 },
+        api: { factionId: '', factionName: '', ownFactionId: '', ownFactionName: '', warId: '', warActive: false, warStatus: '', targetPrefs: {}, syncedAt: 0, online: false, chainHits: null, chainDeadline: 0, chainAvailable: false, hiddenIds: [] }
+      });
+      const loadState = () => {
+        try {
+          const value = JSON.parse(localStorage.getItem(STORE_KEY));
+          if (value && Array.isArray(value.targets) && value.chain) {
+            value.api = value.api || { factionId: '', factionName: '', ownFactionId: '', ownFactionName: '', warId: '', warActive: false, warStatus: '', targetPrefs: {}, syncedAt: 0, online: false, chainHits: null, chainDeadline: 0, chainAvailable: false, hiddenIds: [] };
+            value.api.targetPrefs = value.api.targetPrefs || {};
+            value.api.hiddenIds = Array.isArray(value.api.hiddenIds) ? value.api.hiddenIds : [];
+            value.api.online = false;
+            value.targets.forEach((target) => { if (!target.source) target.source = /^Demo\s/.test(target.name || '') ? 'demo' : 'manual'; });
+            return value;
+          }
+        } catch (e) { /* use fresh sample board */ }
+        const fresh = defaultState();
+        saveState(fresh);
+        return fresh;
+      };
+      let state = loadState();
+      let activeFilter = 'all';
+      let searchTerm = '';
+      let allTargetFilter = 'all';
+      let allTargetSearchTerm = '';
+      let toastTimeout;
+      let apiSyncInProgress = false;
+      let apiPollHandle = null;
+
+      function saveState(next = state) {
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(next)); }
+        catch (e) { showToast('Could not save: browser storage is unavailable.'); }
+      }
+      function esc(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+      }
+      function initials(name) {
+        const parts = String(name || '?').trim().split(/\s+/).filter(Boolean);
+        return (parts.length > 1 ? parts[0][0] + parts[1][0] : (parts[0] || '?').slice(0, 2)).toUpperCase();
+      }
+      function profileUrl(xid) { return `https://www.torn.com/profiles.php?XID=${encodeURIComponent(String(xid || '').replace(/\D/g, ''))}`; }
+      function remaining(target) { return Number(target.hospitalUntil || 0) - Date.now(); }
+      function formatTime(ms) {
+        const seconds = Math.max(0, Math.ceil(ms / 1000));
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        return hrs > 0 ? `${hrs}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}` : `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+      function relativeLastHit() {
+        const age = Math.max(0, Date.now() - Number(state.chain.lastHit || Date.now()));
+        if (age < 60000) return 'just now';
+        if (age < 3600000) return `${Math.floor(age / 60000)} min ago`;
+        return `${Math.floor(age / 3600000)} hr ago`;
+      }
+      function targetIsHospitalized(target) { return Number(target.hospitalUntil || 0) > Date.now(); }
+      function laneFor(key) { return LANES.find((lane) => lane.key === key) || LANES[0]; }
+      function showToast(message) {
+        const el = byId('toast');
+        el.textContent = message;
+        el.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => el.classList.remove('show'), 2400);
+      }
+      function downloadFile(filename, content, mimeType) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url; link.download = filename; link.style.display = 'none';
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      function exportBoardJson() {
+        downloadFile('owchowch-personal-war-room-board.json', JSON.stringify(state, null, 2), 'application/json;charset=utf-8');
+        showToast('Board backup downloaded.');
+      }
+      function csvCell(value) {
+        return `"${String(value ?? '').replace(/"/g, '""')}"`;
+      }
+      function downloadCsv(filename, rows) {
+        const csv = rows.map((row) => row.map(csvCell).join(',')).join('\r\n');
+        downloadFile(filename, `\ufeff${csv}`, 'text/csv;charset=utf-8');
+      }
+      function exportRosterCsv() {
+        const rows = [['Player', 'Torn ID', 'Torn profile URL', 'Range group', 'In range', 'Status', 'Hospital release UTC', 'Minutes remaining', 'Intel note']];
+        state.targets.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach((target) => {
+          const hospitalized = targetIsHospitalized(target);
+          const lane = laneFor(target.range).label;
+          const status = hospitalized ? 'Hospital' : (target.statusState && !/^okay$/i.test(target.statusState) ? target.statusState : target.inRange ? 'Ready' : 'Out of range');
+          rows.push([target.name, target.xid, profileUrl(target.xid), lane, target.inRange ? 'Yes' : 'No', status,
+            hospitalized ? new Date(Number(target.hospitalUntil)).toISOString() : '',
+            hospitalized ? Math.ceil(remaining(target) / 60000) : '', target.note || '']);
+        });
+        downloadCsv('torn-target-roster.csv', rows);
+        showToast(`Exported ${state.targets.length} targets to CSV.`);
+      }
+      function exportHospitalCsv() {
+        const hospitalized = state.targets.filter(targetIsHospitalized).sort((a, b) => a.hospitalUntil - b.hospitalUntil);
+        const rows = [['Player', 'Torn ID', 'Torn profile URL', 'Hospital release UTC', 'Minutes remaining', 'Range group', 'Intel note']];
+        hospitalized.forEach((target) => rows.push([target.name, target.xid, profileUrl(target.xid),
+          new Date(Number(target.hospitalUntil)).toISOString(), Math.ceil(remaining(target) / 60000), laneFor(target.range).label, target.note || '']));
+        downloadCsv('torn-hospital-watch.csv', rows);
+        showToast(`Exported ${hospitalized.length} hospital timers to CSV.`);
+      }
+      function currentApiKey() {
+        try { return sessionStorage.getItem(API_KEY_STORE) || ''; } catch (e) { return ''; }
+      }
+      function setApiStatus(mode, detail = '') {
+        const button = byId('apiSetup');
+        const label = byId('apiLabel');
+        button.classList.remove('connected', 'syncing', 'error');
+        if (mode === 'connected') {
+          button.classList.add('connected');
+          label.textContent = state.api?.warActive ? 'War detected' : (state.api?.syncedAt ? 'No active war' : 'API connected');
+        } else if (mode === 'syncing') {
+          button.classList.add('syncing'); label.textContent = 'Syncing Torn…';
+        } else if (mode === 'error') {
+          button.classList.add('error'); label.textContent = 'API attention';
+        } else {
+          label.textContent = currentApiKey() ? 'Reconnect API' : (state.api?.syncedAt ? 'API key needed' : 'Connect API');
+        }
+        button.title = detail || (mode === 'connected' ? `Torn sync · ${state.api?.factionName || (state.api?.factionId ? `opponent ${state.api.factionId}` : 'waiting for a ranked war')}` : 'Connect your Torn API key; opponent faction is detected from ranked-war data');
+      }
+      function apiErrorText(payload) {
+        const error = payload?.error;
+        if (typeof error === 'string') return error;
+        if (error && typeof error === 'object') return error.error || error.message || `Torn API error ${error.code || ''}`;
+        return payload?.message || 'Unknown Torn API error';
+      }
+      function normalizeApiMembers(payload) {
+        const root = payload?.data ?? payload ?? {};
+        const collection = root.members ?? root.faction?.members ?? root.data?.members ?? (Array.isArray(root) ? root : null);
+        let entries = [];
+        if (Array.isArray(collection)) entries = collection.map((member, index) => [member?.id ?? member?.ID ?? member?.user_id ?? index, member]);
+        else if (collection && typeof collection === 'object') entries = Object.entries(collection);
+        return entries.map(([key, raw]) => {
+          const member = raw?.member && typeof raw.member === 'object' ? raw.member : (raw || {});
+          const xid = String(member.id ?? member.ID ?? member.user_id ?? key ?? '').replace(/\D/g, '');
+          const name = String(member.name ?? member.username ?? '').trim();
+          const status = typeof member.status === 'string' ? { state: member.status } : (member.status || {});
+          const statusState = String(status.state ?? status.description ?? member.state ?? '').trim();
+          const untilRaw = Number(status.until ?? status.until_timestamp ?? member.hospital_until ?? 0);
+          const untilMs = untilRaw > 1e12 ? untilRaw : untilRaw > 0 ? untilRaw * 1000 : 0;
+          const hospitalized = /hospital/i.test(statusState);
+          return { xid, name, level: Number(member.level) || null, statusState, hospitalUntil: hospitalized && untilMs > Date.now() ? untilMs : null };
+        }).filter((member) => member.xid && member.name);
+      }
+      function normalizeApiChain(payload) {
+        const root = payload?.data ?? payload ?? {};
+        const chain = root.chain && typeof root.chain === 'object' ? root.chain : root;
+        const hits = Number(chain.current ?? chain.chain ?? chain.hits ?? chain.count ?? 0) || 0;
+        const timeoutRaw = chain.timeout ?? chain.time_left ?? chain.timeLeft ?? chain.seconds_remaining ?? null;
+        const endRaw = chain.end_at ?? chain.endAt ?? chain.ends_at ?? chain.endsAt ?? chain.end ?? chain.until ?? null;
+        let deadline = 0;
+        const parseEnd = (value, isTimeout = false) => {
+          if (typeof value === 'string' && !/^\d+(\.\d+)?$/.test(value)) {
+            const parsed = Date.parse(value);
+            return Number.isFinite(parsed) ? parsed : 0;
+          }
+          const number = Number(value);
+          if (!Number.isFinite(number) || number <= 0) return 0;
+          if (number > 1e12) return number;
+          if (number > 1e9) return number * 1000;
+          return isTimeout && number <= 86400 ? Date.now() + number * 1000 : 0;
+        };
+        deadline = parseEnd(timeoutRaw, true) || parseEnd(endRaw, false);
+        const available = Object.keys(chain || {}).length > 0 && !root.error;
+        return { hits, deadline, available };
+      }
+      async function syncFromTorn(silent = true) {
+        const apiKey = currentApiKey();
+        if (!apiKey) {
+          setApiStatus('idle');
+          if (!silent) showToast('Enter your Torn API key to detect the active ranked war.');
+          return false;
+        }
+        if (apiSyncInProgress) return false;
+        apiSyncInProgress = true;
+        setApiStatus('syncing');
+        const connectButton = byId('connectApiButton');
+        if (connectButton) connectButton.disabled = true;
+        try {
+          const response = await fetch('/api/torn-sync', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ apiKey })
+          });
+          const responseText = await response.text();
+          let data;
+          try { data = JSON.parse(responseText); }
+          catch (parseError) {
+            if (response.status === 405 || !String(response.headers.get('content-type') || '').includes('application/json')) {
+              throw new Error('API bridge unavailable from this file preview. Open Owchowch personal war room, or run `python3 app_server.py` locally at http://localhost:8000.');
+            }
+            throw new Error(`App server returned invalid JSON (${response.status}).`);
+          }
+          if (!response.ok || data.error) throw new Error(data.error || `Local API bridge returned ${response.status}`);
+          const problems = [];
+          let memberCount = null;
+          let chainUpdated = false;
+          const warFound = Boolean(data.warFound && /^\d+$/.test(String(data.factionId || '')));
+          state.api.ownFactionId = String(data.ownFactionId || state.api.ownFactionId || '');
+          state.api.ownFactionName = data.ownFactionName || state.api.ownFactionName || '';
+          if (warFound) {
+            const opponentId = String(data.factionId);
+            const changedOpponent = state.api.factionId && state.api.factionId !== opponentId;
+            state.api.targetPrefs = state.api.targetPrefs || {};
+            state.targets.filter((target) => target.source === 'api').forEach((target) => {
+              state.api.targetPrefs[String(target.xid)] = { range: target.range, inRange: target.inRange, note: target.note || '' };
+            });
+            if (changedOpponent) state.api.hiddenIds = [];
+            state.api.warActive = true;
+            state.api.factionId = opponentId;
+            state.api.factionName = data.factionName || `Faction ${opponentId}`;
+            state.api.warId = String(data.warId || '');
+            state.api.warStatus = 'Active ranked war';
+            if (data.members) {
+              const incoming = normalizeApiMembers(data.members);
+              const incomingIds = new Set(incoming.map((member) => member.xid));
+              const previous = new Map(state.targets.map((target) => [String(target.xid), target]));
+              const hidden = new Set((state.api.hiddenIds || []).map(String));
+              const apiTargets = incoming.filter((member) => !hidden.has(member.xid)).map((member) => {
+                const old = previous.get(member.xid);
+                const pref = state.api.targetPrefs[member.xid] || {};
+                return {
+                  id: old?.id || `api-${member.xid}`, xid: member.xid, name: member.name,
+                  range: old?.range || pref.range || 'even',
+                  inRange: old ? Boolean(old.inRange) : (pref.inRange ?? true),
+                  hospitalUntil: member.hospitalUntil, note: old?.note || pref.note || '', source: 'api',
+                  level: member.level, statusState: member.statusState
+                };
+              });
+              const localTargets = state.targets.filter((target) => target.source !== 'api' && target.source !== 'demo' && !incomingIds.has(String(target.xid)));
+              state.targets = [...localTargets, ...apiTargets];
+              memberCount = apiTargets.length;
+            }
+          } else if (data.warLookupOk) {
+            state.targets.filter((target) => target.source === 'api').forEach((target) => {
+              state.api.targetPrefs = state.api.targetPrefs || {};
+              state.api.targetPrefs[String(target.xid)] = { range: target.range, inRange: target.inRange, note: target.note || '' };
+            });
+            state.targets = state.targets.filter((target) => target.source !== 'api' && target.source !== 'demo');
+            state.api.warActive = false;
+            state.api.factionId = '';
+            state.api.factionName = '';
+            state.api.warId = '';
+            state.api.warStatus = 'No active ranked war';
+            memberCount = 0;
+          } else {
+            state.api.warActive = false;
+            state.api.warStatus = 'War lookup failed';
+            problems.push(`War lookup: ${data.warError || 'Could not read ranked-war data.'}`);
+          }
+          if (data.membersError) problems.push(`Roster: ${data.membersError}`);
+          if (data.chainError) { problems.push(`Chain: ${data.chainError}`); state.api.chainAvailable = false; }
+          else if (data.chain) {
+            const chain = normalizeApiChain(data.chain);
+            state.api.chainHits = chain.hits;
+            state.api.chainDeadline = chain.deadline;
+            state.api.chainAvailable = chain.available;
+            chainUpdated = chain.available;
+          }
+          const hasUsefulData = Boolean(data.warLookupOk) || memberCount !== null || chainUpdated;
+          if (!hasUsefulData) throw new Error(problems.join(' · ') || data.warError || 'Torn API sync did not return war data.');
+          state.api.online = true;
+          state.api.syncedAt = Date.now();
+          state.api.lastError = problems.join(' · ');
+          saveState(); renderAll();
+          const statusDetail = problems.length ? problems.join(' · ') : (warFound ? `Detected ${state.api.factionName} [${state.api.factionId}]${memberCount === null ? '' : ` · ${memberCount} members`}` : 'Connected to Torn · no active ranked war detected');
+          setApiStatus(problems.length ? 'error' : 'connected', statusDetail);
+          if (!silent) showToast(problems.length ? `Partial sync · ${problems.join(' · ')}` : (warFound ? `Detected ${state.api.factionName} and synced ${memberCount ?? 'war'} roster.` : 'No active ranked war detected; will keep checking.'));
+          return true;
+        } catch (error) {
+          state.api.online = false;
+          const rawError = error?.message || 'Torn API request failed';
+          state.api.lastError = /failed to fetch|networkerror|load failed/i.test(rawError)
+            ? 'Cannot reach the API bridge from this preview. Open Owchowch personal war room or run the app locally at http://localhost:8000.'
+            : rawError;
+          saveState();
+          setApiStatus('error', state.api.lastError);
+          renderBoard(); updateTimers();
+          if (!silent) showToast(`Torn API: ${state.api.lastError}`);
+          return false;
+        } finally {
+          apiSyncInProgress = false;
+          if (connectButton) connectButton.disabled = false;
+        }
+      }
+      function startApiPolling() {
+        if (apiPollHandle) clearInterval(apiPollHandle);
+        if (currentApiKey()) {
+          syncFromTorn(true);
+          apiPollHandle = setInterval(() => syncFromTorn(true), API_REFRESH_MS);
+        } else setApiStatus('idle');
+      }
+      function openApiSettings() {
+        byId('apiKeyInput').value = '';
+        byId('apiKeyInput').placeholder = currentApiKey() ? 'Key stored for this tab · leave blank to reuse' : 'Paste key · kept for this tab';
+        byId('apiDialogMessage').textContent = state.api?.lastError || 'Owchowch personal war room checks your faction wars/ranked-wars API data, finds the active opponent, then loads that faction\'s member statuses. The key is not written into app files or exports; use this on a server you trust.';
+        byId('apiDialog').showModal();
+        setTimeout(() => byId('apiKeyInput').focus(), 30);
+      }
+      function renderHospitalList() {
+        const list = state.targets.filter(targetIsHospitalized).sort((a, b) => a.hospitalUntil - b.hospitalUntil);
+        byId('hospitalCount').textContent = String(list.length);
+        byId('hospitalList').innerHTML = list.length ? list.slice(0, 5).map((target) => `
+          <div class="hospital-row" data-hospital-row="${esc(target.id)}">
+            <div class="avatar">${esc(initials(target.name))}</div>
+            <div><a class="member-name" href="${profileUrl(target.xid)}" target="_blank" rel="noopener noreferrer">${esc(target.name)} <svg aria-hidden="true" style="width:9px;height:9px;vertical-align:-1px;color:#6e8188"><use href="#i-external"/></svg></a><div class="member-sub">XID ${esc(target.xid)} · hospital</div></div>
+            <div><div class="hospital-timer" data-hospital-timer="${esc(target.id)}">${formatTime(remaining(target))}</div><div class="timer-caption">release in</div></div>
+          </div>`).join('') : '<div class="empty-queue">No tracked targets are currently hospitalized.<br>Add a hospital timer from the target editor.</div>';
+      }
+      function renderBoard() {
+        const query = searchTerm.trim().toLowerCase();
+        const list = state.targets.filter((target) => {
+          const isHosp = targetIsHospitalized(target);
+          if (activeFilter === 'inrange' && !target.inRange) return false;
+          if (activeFilter === 'hospital' && !isHosp) return false;
+          if (query && !(`${target.name} ${target.xid} ${target.note || ''}`.toLowerCase().includes(query))) return false;
+          return true;
+        });
+        byId('lanes').innerHTML = LANES.map((lane) => {
+          const entries = list.filter((target) => target.range === lane.key).sort((a, b) => a.name.localeCompare(b.name));
+          return `<section class="lane" style="--lane-color:${lane.color}" aria-label="${esc(lane.label)}">
+            <div class="lane-header"><div class="lane-title-box"><span class="lane-dot"></span><div><h3 class="lane-title">${esc(lane.label)}</h3><span class="lane-desc">${esc(lane.desc)}</span></div></div><span class="lane-count">${entries.length}</span></div>
+            <div class="lane-content">${entries.length ? entries.map(renderTargetCard).join('') : `<div class="lane-empty">No targets in this lane<br>for the current filter.</div>`}</div>
+          </section>`;
+        }).join('');
+        byId('boardRangeCount').textContent = String(state.targets.filter((target) => target.inRange).length);
+        byId('boardTargetCount').textContent = `${state.targets.length} total`;
+        if (state.api?.online && state.api?.warActive && state.api.factionId) {
+          byId('targetKicker').textContent = `${state.api.factionName || `Faction ${state.api.factionId}`} [${state.api.factionId}] · opponent auto-detected from active ranked war`;
+        } else if (state.api?.online && state.api.warStatus === 'No active ranked war') {
+          byId('targetKicker').textContent = 'No active ranked war detected · checking Torn automatically every 60 seconds.';
+        } else if (state.api?.online && state.api.warStatus === 'War lookup failed') {
+          byId('targetKicker').textContent = `Could not refresh ranked-war data${state.api.factionId ? ` · last opponent ${state.api.factionName || `Faction ${state.api.factionId}`}` : ''}.`;
+        } else if (state.api?.factionId) {
+          byId('targetKicker').textContent = `Last detected opponent: ${state.api.factionName || `Faction ${state.api.factionId}`} · API reconnect needed`;
+        } else {
+          byId('targetKicker').textContent = 'Opponent is auto-detected from your active ranked-war API data.';
+        }
+        bindBoardActions();
+      }
+      function renderAllTargets() {
+        const query = allTargetSearchTerm.trim().toLowerCase();
+        const all = state.targets.slice();
+        const inRangeCount = all.filter((target) => target.inRange).length;
+        const filtered = all.filter((target) => {
+          const hospitalized = targetIsHospitalized(target);
+          if (allTargetFilter === 'inrange' && !target.inRange) return false;
+          if (allTargetFilter === 'out' && target.inRange) return false;
+          if (allTargetFilter === 'hospital' && !hospitalized) return false;
+          const rangeName = laneFor(target.range).label;
+          const text = `${target.name} ${target.xid} ${target.note || ''} ${target.statusState || ''} ${target.level || ''} ${rangeName}`.toLowerCase();
+          return !query || text.includes(query);
+        }).sort((a, b) => a.name.localeCompare(b.name));
+        byId('allWarTargetCount').textContent = String(all.length);
+        byId('allWarInRangeCount').textContent = String(inRangeCount);
+        if (state.api?.warActive && state.api.factionId) {
+          byId('allWarTargetKicker').textContent = `${state.api.factionName || `Faction ${state.api.factionId}`} · ${all.length} tracked members · all range statuses included`;
+        } else if (state.api?.warStatus === 'No active ranked war') {
+          byId('allWarTargetKicker').textContent = 'No active ranked war detected. This list shows manually saved targets only.';
+        } else {
+          byId('allWarTargetKicker').textContent = 'Full tracked roster, including out-of-range targets and manual additions.';
+        }
+        if (!filtered.length) {
+          const message = all.length ? 'No targets match this filter.' : 'No war targets loaded yet. Connect Torn API during an active ranked war, or add targets from Target groups.';
+          byId('allWarTargetsBody').innerHTML = `<tr><td colspan="6"><div class="war-empty">${esc(message)}</div></td></tr>`;
+          return;
+        }
+        byId('allWarTargetsBody').innerHTML = filtered.map((target) => {
+          const hospitalized = targetIsHospitalized(target);
+          let statusBadge;
+          if (hospitalized) statusBadge = `<span class="war-status hospital">Hospital · <span data-war-timer="${esc(target.id)}">${formatTime(remaining(target))}</span></span>`;
+          else if (target.statusState && !/^okay$/i.test(String(target.statusState))) statusBadge = `<span class="war-status other">${esc(target.statusState)}</span>`;
+          else if (!target.inRange) statusBadge = '<span class="war-status out">Out of range</span>';
+          else statusBadge = '<span class="war-status">Ready</span>';
+          return `<tr>
+            <td><a class="war-player-link" href="${profileUrl(target.xid)}" target="_blank" rel="noopener noreferrer">${esc(target.name)} <svg aria-hidden="true" style="width:9px;height:9px;vertical-align:-1px;color:#6e8188"><use href="#i-external"/></svg></a><span class="war-player-id">XID ${esc(target.xid)}</span></td>
+            <td>${statusBadge}</td>
+            <td><span class="war-range">${esc(laneFor(target.range).label)}</span></td>
+            <td><span class="war-inrange ${target.inRange ? '' : 'no'}">${target.inRange ? 'Yes' : 'No'}</span></td>
+            <td>${target.level ? esc(target.level) : '—'}</td>
+            <td title="${esc(target.note || '')}">${target.note ? esc(target.note) : '<span style="color:#63737c">—</span>'}</td>
+          </tr>`;
+        }).join('');
+      }
+      function renderTargetCard(target) {
+        const isHosp = targetIsHospitalized(target);
+        const apiStatus = String(target.statusState || '').trim();
+        const stateBadge = isHosp
+          ? `<span class="target-state hospital"><svg><use href="#i-clock"/></svg><span data-card-timer="${esc(target.id)}">${formatTime(remaining(target))}</span></span>`
+          : !target.inRange ? `<span class="target-state out">Out of range</span>`
+          : apiStatus && !/^okay$/i.test(apiStatus) ? `<span class="target-state other">${esc(apiStatus)}</span>`
+          : `<span class="target-state"><svg><use href="#i-bolt"/></svg>Ready</span>`;
+        return `<article class="target-card ${target.inRange ? '' : 'out-of-range'}" data-target-card="${esc(target.id)}">
+          <div class="target-card-top"><div class="target-main"><div class="avatar">${esc(initials(target.name))}</div><div style="min-width:0"><a class="target-name" href="${profileUrl(target.xid)}" target="_blank" rel="noopener noreferrer">${esc(target.name)} <svg aria-hidden="true" style="width:9px;height:9px;vertical-align:-1px;color:#6e8188"><use href="#i-external"/></svg></a><span class="target-id">Torn ID ${esc(target.xid)}</span></div></div>${stateBadge}</div>
+          <div class="target-note" title="${esc(target.note || '')}">${target.note ? esc(target.note) : '<span style="color:#63737c">No intel note</span>'}</div>
+          <div class="target-controls"><select class="target-range-select" data-move="${esc(target.id)}" aria-label="Change range lane for ${esc(target.name)}"><option value="favorable" ${target.range === 'favorable' ? 'selected' : ''}>Soft targets</option><option value="even" ${target.range === 'even' ? 'selected' : ''}>Even matchups</option><option value="stretch" ${target.range === 'stretch' ? 'selected' : ''}>Stretch targets</option></select><div class="target-control-right"><label class="inrange-toggle" title="Mark whether this target is in range"><input type="checkbox" data-inrange="${esc(target.id)}" ${target.inRange ? 'checked' : ''} />In range</label><button class="mini-action" type="button" data-edit="${esc(target.id)}" title="Edit target" aria-label="Edit ${esc(target.name)}"><svg><use href="#i-edit"/></svg></button><button class="mini-action delete" type="button" data-delete="${esc(target.id)}" title="Remove target" aria-label="Remove ${esc(target.name)}"><svg><use href="#i-trash"/></svg></button></div></div>
+        </article>`;
+      }
+      function renderStats() {
+        const hospitalized = state.targets.filter(targetIsHospitalized).length;
+        const inRange = state.targets.filter((target) => target.inRange).length;
+        const ready = state.targets.filter((target) => target.inRange && !targetIsHospitalized(target)).length;
+        byId('statHospital').textContent = String(hospitalized);
+        byId('statRange').textContent = String(inRange);
+        byId('statTotal').textContent = String(state.targets.length);
+        byId('statReady').textContent = String(ready);
+        byId('downloadBoardCount').textContent = String(state.targets.length);
+        byId('downloadTargetCount').textContent = String(state.targets.length);
+        byId('downloadHospitalCount').textContent = String(hospitalized);
+      }
+      function updateTimers() {
+        const apiChainMode = Boolean(state.api?.online && state.api?.chainAvailable);
+        const chainLeft = apiChainMode ? Number(state.api.chainDeadline || 0) - Date.now() : Number(state.chain.deadline || 0) - Date.now();
+        const apiHasActiveChain = apiChainMode && Number(state.api.chainHits || 0) > 0 && chainLeft > 0;
+        const manualExpired = !apiChainMode && chainLeft <= 0;
+        const apiIdle = apiChainMode && !apiHasActiveChain;
+        const expired = apiChainMode ? apiIdle : manualExpired;
+        const clock = apiChainMode && apiIdle ? '00:00' : formatTime(chainLeft);
+        byId('chainClock').textContent = clock;
+        byId('statChain').textContent = clock;
+        byId('chainClock').classList.toggle('expired', expired);
+        byId('chainMeter').classList.toggle('expired', expired);
+        byId('chainMeter').style.width = `${Math.max(0, Math.min(100, chainLeft / CHAIN_WINDOW * 100))}%`;
+        byId('chainState').classList.toggle('idle', expired);
+        if (apiChainMode) {
+          const factionLabel = state.api.ownFactionName || 'Your faction';
+          byId('chainKicker').textContent = `${factionLabel} · live from Torn API`;
+          byId('chainWindowLabel').innerHTML = 'Source <b>Torn API</b>';
+          byId('chainDetailLabel').textContent = 'Last sync';
+          byId('lastHitText').textContent = state.api.syncedAt ? `${Math.max(0, Math.floor((Date.now() - state.api.syncedAt) / 1000))}s ago` : '—';
+          byId('statChainCaption').textContent = apiHasActiveChain ? 'Live faction chain countdown' : 'No active chain reported by Torn';
+          byId('chainState').innerHTML = apiHasActiveChain ? '<span class="live-dot"></span> API live' : 'No active chain';
+          byId('chainHint').textContent = apiHasActiveChain ? 'Timer and hit count are read from your faction’s live chain.' : 'Torn reports no active chain for the faction attached to this API key.';
+          byId('logHit').innerHTML = '<svg><use href="#i-bolt"/></svg> Read-only · synced from Torn';
+          byId('chainHits').textContent = String(state.api.chainHits || 0);
+        } else {
+          byId('chainKicker').textContent = state.api?.online ? 'Torn roster live · manual chain timer' : 'Manual timer · connect API for live faction chain';
+          byId('chainWindowLabel').innerHTML = 'Window <b>05:00</b>';
+          byId('chainDetailLabel').textContent = 'Last hit';
+          byId('lastHitText').textContent = relativeLastHit();
+          byId('statChainCaption').textContent = manualExpired ? 'Manual chain window expired' : 'Manual chain timer · connect API for live data';
+          byId('chainState').innerHTML = manualExpired ? 'Window expired' : '<span class="live-dot"></span> Manual';
+          byId('chainHint').innerHTML = manualExpired ? 'The window is over. Start a new one when your chain is underway.' : 'Log a hit to reset the <strong>5 minute</strong> window.';
+          byId('logHit').innerHTML = manualExpired ? '<svg><use href="#i-bolt"/></svg> Start chain · 5:00 window' : '<svg><use href="#i-bolt"/></svg> Log hit · reset timer';
+          byId('chainHits').textContent = String(state.chain.hits || 0);
+        }
+        byId('logHit').disabled = apiChainMode;
+        byId('resetChain').disabled = apiChainMode;
+        state.targets.forEach((target) => {
+          const ms = remaining(target);
+          const cardTimer = document.querySelector(`[data-card-timer="${CSS.escape(String(target.id))}"]`);
+          if (cardTimer) cardTimer.textContent = formatTime(ms);
+          const hospitalTimer = document.querySelector(`[data-hospital-timer="${CSS.escape(String(target.id))}"]`);
+          if (hospitalTimer) hospitalTimer.textContent = formatTime(ms);
+          const warTimer = document.querySelector(`[data-war-timer="${CSS.escape(String(target.id))}"]`);
+          if (warTimer) warTimer.textContent = formatTime(ms);
+        });
+        renderStats();
+        const liveQueue = state.targets.filter(targetIsHospitalized).length;
+        if (Number(byId('hospitalCount').textContent) !== liveQueue) {
+          renderHospitalList(); renderBoard(); renderAllTargets();
+        }
+      }
+      function renderAll() {
+        renderHospitalList();
+        renderBoard();
+        renderAllTargets();
+        renderStats();
+        updateTimers();
+      }
+      function bindBoardActions() {
+        document.querySelectorAll('[data-move]').forEach((select) => select.addEventListener('change', (event) => {
+          const target = state.targets.find((item) => item.id === event.currentTarget.dataset.move);
+          if (!target) return;
+          target.range = event.currentTarget.value;
+          saveState(); renderAll(); showToast(`Moved ${target.name} to ${laneFor(target.range).label}.`);
+        }));
+        document.querySelectorAll('[data-inrange]').forEach((checkbox) => checkbox.addEventListener('change', (event) => {
+          const target = state.targets.find((item) => item.id === event.currentTarget.dataset.inrange);
+          if (!target) return;
+          target.inRange = event.currentTarget.checked;
+          saveState(); renderAll();
+        }));
+        document.querySelectorAll('[data-edit]').forEach((button) => button.addEventListener('click', () => openEditor(button.dataset.edit)));
+        document.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => {
+          const target = state.targets.find((item) => item.id === button.dataset.delete);
+          if (!target) return;
+          if (!confirm(`Remove ${target.name} from this board?`)) return;
+          if (target.source === 'api') state.api.hiddenIds = [...new Set([...(state.api.hiddenIds || []), String(target.xid)])];
+          state.targets = state.targets.filter((item) => item.id !== target.id);
+          saveState(); renderAll(); showToast(`${target.name} removed.`);
+        }));
+      }
+      const dialog = byId('targetDialog');
+      function openEditor(id = '') {
+        const target = state.targets.find((item) => item.id === id);
+        byId('targetForm').reset();
+        byId('editId').value = target ? target.id : '';
+        byId('dialogTitle').textContent = target ? 'Edit target' : 'Add target';
+        byId('saveTarget').textContent = target ? 'Save changes' : 'Save target';
+        byId('targetName').value = target?.name || '';
+        byId('targetXid').value = target?.xid || '';
+        byId('targetRange').value = target?.range || 'favorable';
+        byId('targetInRange').checked = target ? Boolean(target.inRange) : true;
+        byId('targetNote').value = target?.note || '';
+        const minsLeft = targetIsHospitalized(target || {}) ? Math.ceil(remaining(target) / 60000) : '';
+        byId('hospitalMinutes').value = minsLeft;
+        dialog.showModal();
+        setTimeout(() => byId('targetName').focus(), 30);
+      }
+      function closeDialog() { dialog.close(); }
+      byId('addTargetTop').addEventListener('click', () => openEditor());
+      byId('addTargetBoard').addEventListener('click', () => openEditor());
+      byId('closeDialog').addEventListener('click', closeDialog);
+      byId('cancelDialog').addEventListener('click', closeDialog);
+      dialog.addEventListener('click', (event) => { if (event.target === dialog) closeDialog(); });
+      byId('targetForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const name = byId('targetName').value.trim();
+        const xid = byId('targetXid').value.trim();
+        if (!/^\d+$/.test(xid)) { byId('targetXid').setCustomValidity('Enter the numeric Torn profile ID.'); byId('targetXid').reportValidity(); return; }
+        byId('targetXid').setCustomValidity('');
+        const mins = Math.max(0, Number(byId('hospitalMinutes').value || 0));
+        const editId = byId('editId').value;
+        const old = state.targets.find((item) => item.id === editId);
+        const entry = {
+          id: editId || makeId(), name, xid,
+          range: byId('targetRange').value,
+          inRange: byId('targetInRange').checked,
+          hospitalUntil: mins > 0 ? Date.now() + mins * 60000 : null,
+          note: byId('targetNote').value.trim(), source: old?.source || 'manual', statusState: old?.statusState || ''
+        };
+        if (old) state.targets = state.targets.map((item) => item.id === editId ? entry : item);
+        else state.targets.push(entry);
+        saveState(); closeDialog(); renderAll();
+        showToast(old ? `${name} updated.` : `${name} added to the board.`);
+      });
+      byId('targetXid').addEventListener('input', () => byId('targetXid').setCustomValidity(''));
+      document.querySelectorAll('[data-filter]').forEach((button) => button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+        document.querySelectorAll('[data-filter]').forEach((item) => item.classList.toggle('selected', item === button));
+        renderBoard();
+      }));
+      byId('targetSearch').addEventListener('input', (event) => { searchTerm = event.target.value; renderBoard(); });
+      document.querySelectorAll('[data-war-filter]').forEach((button) => button.addEventListener('click', () => {
+        allTargetFilter = button.dataset.warFilter;
+        document.querySelectorAll('[data-war-filter]').forEach((item) => item.classList.toggle('selected', item === button));
+        renderAllTargets();
+      }));
+      byId('allTargetSearch').addEventListener('input', (event) => { allTargetSearchTerm = event.target.value; renderAllTargets(); });
+      byId('exportAllWarTargets').addEventListener('click', exportRosterCsv);
+      byId('logHit').addEventListener('click', () => {
+        const expired = Number(state.chain.deadline) <= Date.now();
+        state.chain.hits = expired ? 0 : Number(state.chain.hits || 0) + 1;
+        state.chain.deadline = Date.now() + CHAIN_WINDOW;
+        state.chain.lastHit = Date.now();
+        saveState(); updateTimers();
+        showToast(expired ? 'New 5-minute chain window started.' : 'Hit logged — timer reset to 5:00.');
+      });
+      byId('resetChain').addEventListener('click', () => {
+        if (!confirm('Reset the chain timer to a fresh 5-minute window?')) return;
+        state.chain.deadline = Date.now() + CHAIN_WINDOW;
+        state.chain.lastHit = Date.now();
+        saveState(); updateTimers(); showToast('Chain timer reset.');
+      });
+      byId('resetDemo').addEventListener('click', () => {
+        if (!confirm('Replace this board with the sample roster? Your current targets will be removed.')) return;
+        state = defaultState(); saveState(); activeFilter = 'all'; searchTerm = '';
+        if (apiPollHandle) clearInterval(apiPollHandle); apiPollHandle = null;
+        setApiStatus('idle');
+        byId('targetSearch').value = '';
+        document.querySelectorAll('[data-filter]').forEach((button) => button.classList.toggle('selected', button.dataset.filter === 'all'));
+        renderAll(); showToast('Sample board restored.');
+      });
+      byId('exportButton').addEventListener('click', exportBoardJson);
+      byId('downloadBoardJson').addEventListener('click', exportBoardJson);
+      byId('downloadRosterCsv').addEventListener('click', exportRosterCsv);
+      byId('downloadHospitalCsv').addEventListener('click', exportHospitalCsv);
+      const apiDialog = byId('apiDialog');
+      byId('apiSetup').addEventListener('click', openApiSettings);
+      byId('apiSettingsButton').addEventListener('click', openApiSettings);
+      byId('closeApiDialog').addEventListener('click', () => apiDialog.close());
+      byId('cancelApiDialog').addEventListener('click', () => apiDialog.close());
+      apiDialog.addEventListener('click', (event) => { if (event.target === apiDialog) apiDialog.close(); });
+      byId('forgetApiKey').addEventListener('click', () => {
+        try { sessionStorage.removeItem(API_KEY_STORE); } catch (e) { /* session storage may be disabled */ }
+        if (apiPollHandle) clearInterval(apiPollHandle);
+        apiPollHandle = null;
+        state.api.online = false; saveState(); setApiStatus('idle');
+        renderBoard(); updateTimers();
+        byId('apiKeyInput').value = '';
+        byId('apiKeyInput').placeholder = 'Paste key · kept for this tab';
+        byId('apiDialogMessage').textContent = 'API key forgotten in this tab. Saved roster data remains on this device.';
+        showToast('Torn API key removed from this tab.');
+      });
+      byId('apiForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const typedKey = byId('apiKeyInput').value.trim();
+        if (typedKey) {
+          try { sessionStorage.setItem(API_KEY_STORE, typedKey); }
+          catch (e) { byId('apiDialogMessage').textContent = 'This browser blocked session storage. Please enable it to keep the API key for this tab.'; return; }
+        }
+        if (!currentApiKey()) {
+          byId('apiDialogMessage').textContent = 'Enter your Torn API key. It is kept only in this tab session.';
+          byId('apiKeyInput').focus(); return;
+        }
+        state.api.online = false;
+        state.api.lastError = '';
+        saveState();
+        apiDialog.close();
+        if (apiPollHandle) clearInterval(apiPollHandle);
+        await syncFromTorn(false);
+        apiPollHandle = setInterval(() => syncFromTorn(true), API_REFRESH_MS);
+      });
+      let deferredInstallPrompt = null;
+      const installButton = byId('installPwa');
+      const isStandaloneApp = window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      if (isStandaloneApp) {
+        byId('androidInstallStatus').textContent = 'Installed on this device';
+        installButton.textContent = 'Installed'; installButton.disabled = true;
+      }
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        byId('androidInstallStatus').textContent = 'Ready to install';
+        installButton.disabled = false;
+      });
+      window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        byId('androidInstallStatus').textContent = 'Installed on this device';
+        installButton.textContent = 'Installed'; installButton.disabled = true;
+        showToast('Owchowch personal war room installed.');
+      });
+      installButton.addEventListener('click', async () => {
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          const choice = await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          if (choice?.outcome === 'accepted') showToast('Install started.');
+          else showToast('Install dismissed. You can install later from your browser menu.');
+          return;
+        }
+        showToast(/android/i.test(navigator.userAgent) ? 'In Chrome, tap ⋮ and choose Install app or Add to Home screen.' : 'Open this HTTPS link in Chrome on Android and choose Install app from the browser menu.');
+      });
+      byId('copyInstallLink').addEventListener('click', async () => {
+        const url = window.location.href;
+        try { await navigator.clipboard.writeText(url); showToast('App link copied. Open it in Safari on your iPhone/iPad.'); }
+        catch (error) {
+          const input = document.createElement('textarea'); input.value = url; input.style.position = 'fixed'; input.style.opacity = '0';
+          document.body.appendChild(input); input.select();
+          const copied = document.execCommand('copy'); input.remove();
+          showToast(copied ? 'App link copied. Open it in Safari.' : url);
+        }
+      });
+      if ('serviceWorker' in navigator && /^https?:$/.test(window.location.protocol)) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/service-worker.js').catch(() => {}));
+      }
+      byId('todayDate').textContent = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }).format(new Date()).toUpperCase();
+      renderAll();
+      setApiStatus('idle');
+      startApiPolling();
+      setInterval(updateTimers, 1000);
+    })();
+  </script>
+</body>
+</html>
