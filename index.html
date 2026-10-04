@@ -456,7 +456,7 @@
           <div class="filter-group" role="group" aria-label="Filter targets">
             <button class="filter-chip selected" type="button" data-filter="all">All targets</button>
             <button class="filter-chip" type="button" data-filter="inrange">In range</button>
-            <button class="filter-chip" type="button" data-filter="hospital">Hospitalized</button>
+            <button class="filter-chip" type="button" data-filter="hospital" title="Order hospitalized targets by soonest release">Hospitalized</button>
           </div>
           <div class="target-actions">
             <label class="search-box"><svg><use href="#i-search"/></svg><input id="targetSearch" type="search" placeholder="Find a target…" aria-label="Find a target" /></label>
@@ -464,7 +464,7 @@
           </div>
         </div>
         <div class="lanes" id="lanes"></div>
-        <div class="board-note"><svg><use href="#i-info"/></svg><span><strong>Range lanes are manual.</strong> Sort targets using your own war intel; this board does not estimate battle stats or verify Torn attack range. Add a Torn ID to make a target name open their profile.</span></div>
+        <div class="board-note"><svg><use href="#i-info"/></svg><span><strong>Range lanes are manual.</strong> This board does not estimate battle stats or verify Torn attack range. The Hospitalized filter orders releases soonest first within each lane; in All war targets it orders the whole roster. Add a Torn ID to make a target name open their profile.</span></div>
       </section>
 
       <section class="panel all-war-targets-panel" id="all-war-targets">
@@ -480,7 +480,7 @@
             <button class="filter-chip selected" type="button" data-war-filter="all">All targets</button>
             <button class="filter-chip" type="button" data-war-filter="inrange">In range</button>
             <button class="filter-chip" type="button" data-war-filter="out">Out of range</button>
-            <button class="filter-chip" type="button" data-war-filter="hospital">Hospitalized</button>
+            <button class="filter-chip" type="button" data-war-filter="hospital" title="Show hospitalized targets with the soonest release first">Hospitalized</button>
           </div>
           <div class="target-actions">
             <label class="search-box"><svg><use href="#i-search"/></svg><input id="allTargetSearch" type="search" placeholder="Search full roster…" aria-label="Search all war targets" /></label>
@@ -674,6 +674,9 @@
         return `${Math.floor(age / 3600000)} hr ago`;
       }
       function targetIsHospitalized(target) { return Number(target.hospitalUntil || 0) > Date.now(); }
+      function compareSoonestHospitalRelease(a, b) {
+        return Number(a.hospitalUntil || 0) - Number(b.hospitalUntil || 0) || String(a.name || '').localeCompare(String(b.name || ''));
+      }
       function laneFor(key) { return LANES.find((lane) => lane.key === key) || LANES[0]; }
       function showToast(message) {
         const el = byId('toast');
@@ -939,7 +942,7 @@
           return true;
         });
         byId('lanes').innerHTML = LANES.map((lane) => {
-          const entries = list.filter((target) => target.range === lane.key).sort((a, b) => a.name.localeCompare(b.name));
+          const entries = list.filter((target) => target.range === lane.key).sort((a, b) => activeFilter === 'hospital' ? compareSoonestHospitalRelease(a, b) : a.name.localeCompare(b.name));
           return `<section class="lane" style="--lane-color:${lane.color}" aria-label="${esc(lane.label)}">
             <div class="lane-header"><div class="lane-title-box"><span class="lane-dot"></span><div><h3 class="lane-title">${esc(lane.label)}</h3><span class="lane-desc">${esc(lane.desc)}</span></div></div><span class="lane-count">${entries.length}</span></div>
             <div class="lane-content">${entries.length ? entries.map(renderTargetCard).join('') : `<div class="lane-empty">No targets in this lane<br>for the current filter.</div>`}</div>
@@ -972,7 +975,7 @@
           const rangeName = laneFor(target.range).label;
           const text = `${target.name} ${target.xid} ${target.note || ''} ${target.statusState || ''} ${target.level || ''} ${rangeName}`.toLowerCase();
           return !query || text.includes(query);
-        }).sort((a, b) => a.name.localeCompare(b.name));
+        }).sort((a, b) => allTargetFilter === 'hospital' ? compareSoonestHospitalRelease(a, b) : a.name.localeCompare(b.name));
         byId('allWarTargetCount').textContent = String(all.length);
         byId('allWarInRangeCount').textContent = String(inRangeCount);
         if (state.api?.warActive && state.api.factionId) {
